@@ -1,0 +1,12 @@
+#main_path: "D:/data/yolov8_strawberry/obb_pose_combined_dataset/"
+main_path: "D:/data/yolov8_strawberry/5_03_obb_pose_combined_dataset/"
+# We can convert train to test/val
+key_point_image_train_path: "strawberry_key_point_pose/images/"
+key_point_label_train_path: "strawberry_key_point_pose/labels/"
+obb_image_train_path: "strawberry_obb/images/"
+obb_label_train_path: "strawberry_obb/labels/"
+new_image_train_path: "combined_data/images/train/"
+new_image_temp_path: "combined_data/images/temp/"
+new_label_train_path: "combined_data/labels/train/"
+path_txt: "train.txt"
+start_index: 0

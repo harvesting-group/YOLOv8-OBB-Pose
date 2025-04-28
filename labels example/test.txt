@@ -1,0 +1,17 @@
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/179.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/180.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/182.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/183.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/184.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/186.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/187.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/188.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/189.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/192.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/193.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/194.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/196.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/197.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/198.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/199.png
+/data2/sihuo/yolov8_strawberry/0504/combined_data/images/200.png
