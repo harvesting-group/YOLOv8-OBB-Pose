@@ -1,63 +1,118 @@
-Project Description
-Code Paths:
-YOLOv8 algorithm based on OBB+Pose joint improvements: ./yolov8_obb_pos_2
+# 🎯 YOLOv8-OBB-Pose: Rotated Bounding Box + Keypoint Estimation
 
-Annotation data conversion tool (with visualization for inspection): ./convert_data_tool
+This project extends the YOLOv8 framework with joint **Oriented Bounding Box (OBB)** and **Keypoint (Pose)** detection capabilities. It is designed for applications requiring both rotated object localization and fine-grained pose estimation (e.g., strawberries, robotic grasping, aerial imagery).
 
-Example of converted label format: ./labels example
+---
 
-Partial video/image test results: ./result
+## 📁 Project Structure
 
-Key Modifications:
-Data Enhancement
-The original rotated bounding box (OBB) and keypoints are merged into a single annotation file.
-The annotation format is as follows:
-class_id x1 y1 x2 y2 x3 y3 x4 y4  k_x1 k_y1 v1  k_x2 k_y2 v2  k_x3 k_y3 v3  k_x4 k_y4 v4
-...
-Dataset Preparation
-For model input, the output data includes:
+```text
+./yolov8_obb_pos_2         # YOLOv8 model with OBB + Pose head
+./convert_data_tool        # Annotation converter and visualizer
+./labels example           # Example of converted annotation format
+./result                   # Sample visual/video results
+```
 
-bboxes: filled with rotated bounding boxes (OBB: x, y, w, h, angle)
+---
 
-keypoints: four corner keypoints (k_x1, k_y1, v1, ..., k_x4, k_y4, v4)
+## 🔧 Annotation Format & Data Enhancement
 
-Model Construction
-Based on the original OBB structure, with the following modifications:
+The original rotated bounding boxes (OBB) and keypoints are unified into a single label file with the following format:
 
-Backbone and head structures remain unchanged.
+```text
+class_id x1 y1 x2 y2 x3 y3 x4 y4 k_x1 k_y1 v1 k_x2 k_y2 v2 k_x3 k_y3 v3 k_x4 k_y4 v4 ...
+```
 
-An additional keypoint head is added.
+- `x1~x4, y1~y4`: Coordinates of the four corners (OBB)
+- `k_xi, k_yi, vi`: Keypoint (x, y) and visibility
+  - `vi` ∈ {0: not visible, 1: unclear, 2: visible}
 
-Model Output
-The model now outputs:
+These are parsed and used in model training as:
 
-The original OBB head predictions.
+```text
+bboxes    → rotated box parameters (x, y, w, h, angle)
+keypoints → four corner points with visibility flags
+```
 
-The additional keypoint head predictions.
+---
 
-Usage Instructions:
-Configuration File
+## 🧱 Model Architecture Modifications
 
-Note: When training and validation, you must specify the dataset path in the configuration file ultralytics/cfg/datasets/mydata-obb-pose.yaml.
+- 🧩 **Backbone and detection heads** are inherited from YOLOv8
+- ➕ **Added a dedicated keypoint head** for pose estimation
+
+### 📤 Model Outputs:
+
+- OBB head (rotated box)
+- Pose head (keypoint heatmaps or coordinates)
+
+---
+
+## ⚙️ Dataset Configuration
+
+Edit the dataset config YAML file:
+
+```yaml
+# File: ultralytics/cfg/datasets/mydata-obb-pose.yaml
 path: ./mydata-obb-pose
-Make sure the folder mydata-obb-pose exists in the datasets/ directory under the project root (yolov8_obb_pos/datasets/mydata-obb-pose), and that it contains three .txt files.
+```
 
-Note: The path to the best model is set in the code as:
+Dataset directory should look like:
+
+```text
+datasets/
+└── mydata-obb-pose/
+    ├── train.txt
+    ├── val.txt
+    └── test.txt
+```
+
+Set the model weight path in code:
+
+```python
 weight_path = './runs/obb_pos/train/weights/best.pt'
+```
 
-1.Training
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Train the model
 python train.py
 
-2.Visualization
+# 2. Visualize predictions
 python demo.py
 
-3.Evaluation
+# 3. Evaluate performance
 python val_pos.py
+```
 
-Sample output:
+---
 
-val: Scanning /data2/hil_data/data_str/combined_data/labels.cache... 17 images, 0 backgrounds, 0 corrupt: 100%|██████████| 17/17 [00:00<?, ?it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95)     Pose(P          R      mAP50  mAP50-95): 100%|█████████
+## 📊 Sample Evaluation Output
 
-                   all         17         28          1      0.963      0.979      0.901      0.882      0.821      0.854      0.764
+```text
+val: Scanning /data/.../labels.cache...
+17 images, 28 instances
+
+Class     Images  Instances  Box(P R mAP50 mAP50-95)  Pose(P R mAP50 mAP50-95)
+all           17         28    0.963  0.979  0.901  0.882    0.821  0.854  0.764
+
 Speed: 5.0ms preprocess, 4.7ms inference, 0.0ms loss, 10.7ms postprocess per image
+```
+
+---
+
+## 📎 Notes
+
+- ✅ The `convert_data_tool` can be used to transform original annotations into the required OBB + Pose format, with visualization support.
+- ✅ The pose head currently supports four keypoints, but can be extended to more depending on your application.
+- ✅ You can adapt this framework for different rotated object scenarios (e.g., leaves, tools, drones).
+
+---
+
+## 📬 Contact
+
+If you find this project useful or have questions, feel free to open an issue or submit a pull request. Contributions are welcome!
+
