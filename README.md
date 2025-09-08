@@ -1,69 +1,69 @@
-# 🧠 YOLOv8-OBB-Pose：同时进行方向框检测与关键点姿态估计的双头模型
+# 🧠 YOLOv8-OBB-Pose: Dual-Head Model for Oriented Bounding Box Detection and Keypoint Pose Estimation
 
-本项目基于 [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics)，引入了创新的**双分支结构**，能够同时完成 **方向性边界框（OBB）检测 📦** 与 **关键点姿态估计 🎯**，特别适用于如草莓采摘、遮挡识别、精细定位等场景。
-
----
-
-## 📁 项目结构
-
-项目包含以下核心目录：
-
-- `yolov8_obb_pos_2/`：主模型代码，包括网络结构、训练脚本、推理逻辑等
-- `convert_data_tool/`：数据标注转换与可视化工具
-- `labels/`：转换后的样例标签
-- `result/`：部分测试图像与可视化输出结果
+This project is based on [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) and extends it with a novel **dual-head architecture** for **oriented bounding box (OBB) detection 📦** and **keypoint-based pose estimation 🎯**. It is especially suited for applications such as strawberry picking, occlusion-aware recognition, and fine-grained object localization.
 
 ---
 
-## 🔧 核心改动说明
+## 📁 Project Structure
 
-### ✅ 统一标签格式
+This repository consists of the following core components:
 
-标签文件已将旋转框与关键点统一为如下格式：
+- `yolov8_obb_pos_2/`: Main model code, including architecture, training scripts, and inference logic
+- `convert_data_tool/`: Utilities for label conversion and annotation visualization
+- `labels/`: Example label files using the new unified format
+- `result/`: Sample images or video outputs from inference
+
+---
+
+## 🔧 Key Modifications
+
+### ✅ Unified Label Format
+
+Annotation files have been merged to include both OBB and keypoints in the following format:
 
 ```
 class_id x1 y1 x2 y2 x3 y3 x4 y4 k_x1 k_y1 v1 k_x2 k_y2 v2 k_x3 k_y3 v3 k_x4 k_y4 v4
 ```
 
-其中：
-- 前 8 项为 OBB 的四个角点坐标；
-- 后 12 项为四个关键点的坐标与可见性标志 \( v \in \{0,1\} \)。
+Where:
+- The first 8 values represent the 4 corner points of the oriented bounding box
+- The remaining 12 values represent 4 keypoints, each with x, y coordinates and a visibility flag \(v \in \{0,1\}\)
 
 ---
 
-### ✅ 数据集处理 pipeline
+### ✅ Dataset Input Pipeline
 
-训练数据送入模型时，标签会被解析为：
-- `bboxes`: \((x, y, w, h, \theta)\)，表示中心点、宽高与旋转角
-- `keypoints`: \((x_i, y_i, v_i)\)，每个关键点坐标与是否可见
+During training, each sample is parsed into:
+- `bboxes`: \((x, y, w, h, \theta)\) — representing center point, width, height, and angle
+- `keypoints`: \((x_i, y_i, v_i)\) — the position and visibility of each keypoint
 
 ---
 
-### ✅ 模型结构调整
+### ✅ Model Structure
 
-基于 YOLOv8-OBB 架构，在原检测头（OBB head）之上增加一个关键点预测分支（pose head），输出维度为：
+The model retains the YOLOv8 backbone and OBB detection head, and adds a **pose estimation head** on top. The output dimensions are:
 
 ```
 B × 12 × H × W
 ```
 
-表示每个 grid cell 预测 4 个关键点，每个关键点包括 x、y、v 三个值。
+This means each grid cell predicts 4 keypoints × (x, y, v), totaling 12 channels.
 
 ---
 
-## 🚀 快速上手
+## 🚀 Quick Start
 
-### 📄 Step 0: 配置数据路径
+### 📄 Step 0: Configure Dataset Path
 
-编辑配置文件 `ultralytics/cfg/datasets/mydata-obb-pose.yaml`：
+Edit the file `ultralytics/cfg/datasets/mydata-obb-pose.yaml`:
 
 ```yaml
 path: ./mydata-obb-pose
 ```
 
-确保 `mydata-obb-pose` 文件夹位于 `datasets/` 下，并包含以下 3 个 txt 文件（`train.txt`, `val.txt`, `test.txt`）。
+Make sure this folder exists under `datasets/`, and contains the required `train.txt`, `val.txt`, and `test.txt`.
 
-在训练脚本中设置模型保存路径：
+In your training script, specify the model weight path:
 
 ```python
 weight_path = './runs/obb_pos/train/weights/best.pt'
@@ -71,9 +71,9 @@ weight_path = './runs/obb_pos/train/weights/best.pt'
 
 ---
 
-### 🏋️‍♀️ Step 1: 启动训练
+### 🏋️‍♀️ Step 1: Start Training
 
-运行：
+Run:
 
 ```bash
 python train.py
@@ -81,9 +81,9 @@ python train.py
 
 ---
 
-### 👀 Step 2: 可视化测试结果
+### 👀 Step 2: Visualize Inference Results
 
-运行以下命令查看检测与关键点可视化效果：
+Run the demo script to visualize detection and pose:
 
 ```bash
 python demo.py
@@ -91,15 +91,15 @@ python demo.py
 
 ---
 
-### 📈 Step 3: 进行模型评估
+### 📈 Step 3: Evaluate the Model
 
-运行验证脚本：
+Run the validation script:
 
 ```bash
 python val_pos.py
 ```
 
-示例输出：
+Sample output:
 
 ```
 Class     Images  Instances      Box(P  R  mAP50  mAP50-95)     Pose(P  R  mAP50  mAP50-95)
@@ -109,9 +109,9 @@ Speed: 5.0ms preprocess, 4.7ms inference, 0.0ms loss, 10.7ms postprocess per ima
 
 ---
 
-### 🧩 Step 4: 关键接口调用
+### 🧩 Step 4: Use the Model in Your Own Code
 
-你可以在自己的脚本中这样调用：
+Example inference API usage:
 
 ```python
 from get_obb_pos import get_obb
@@ -119,46 +119,45 @@ from get_obb_pos import get_obb
 obbs = get_obb(weight_path='./runs/obb_pos/train/weights/best.pt', media_path='your_image.jpg')
 ```
 
-返回值为包含以下字段的 `dict` 列表：
-- `obbox`: 方向框坐标
-- `keypoints`: 关键点列表
-- `is_hidden`: 是否存在遮挡关键点
+The return is a list of dictionaries, each containing:
+- `obbox`: Rotated bounding box
+- `keypoints`: Keypoint list
+- `is_hidden`: Flag indicating occlusion
 
 ---
 
-## 🏷️ 标签字段说明
+## 🏷️ Label Format Reference
 
 ```
 class_id x1 y1 x2 y2 x3 y3 x4 y4  k_x1 k_y1 v1  k_x2 k_y2 v2  k_x3 k_y3 v3  k_x4 k_y4 v4
 ```
 
-- OBB：顺时针四个角点的坐标；
-- Keypoints：每个关键点位置与可见性；
-- 可见性 \(v=0\) 表示遮挡，该点不参与损失计算。
+- `x1~x4`, `y1~y4`: Four corner points of the rotated bounding box (clockwise order)
+- `k_x`, `k_y`: Keypoint coordinates
+- `v`: Visibility flag, where 1 = visible, 0 = occluded
 
 ---
 
-## 📸 结果样例
+## 📸 Visual Results
 
-在 `./result/` 文件夹中可查看可视化结果图，标注了旋转框、关键点坐标与遮挡信息。
+Check the `./result/` folder for visualization outputs. Keypoints are shown along with bounding boxes:
+- ✅ Green dots = visible keypoints
+- ❌ Red crosses = occluded keypoints
 
 ---
 
 ## 📜 License
 
-本项目使用 MIT License 开源，欢迎引用、扩展或改造。
+This project is released under the MIT License — feel free to use, modify, and distribute!
 
 ---
 
-## 🙏 鸣谢
+## 🙏 Acknowledgements
 
-本项目基于 Ultralytics YOLOv8 架构开发，感谢其出色的开源贡献！
-
-👉 https://github.com/ultralytics/ultralytics
+Built upon [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics). Huge thanks to the open-source community!
 
 ---
 
-## ⭐ Star 一下吧！
+## ⭐ Support This Project
 
-如果你觉得这个项目有帮助，请不要吝啬地点击右上角的 ⭐Star 支持一下！
-
+If you find this project useful, please consider giving it a ⭐ star on GitHub — your support keeps it going!
